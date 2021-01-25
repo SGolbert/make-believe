@@ -7,7 +7,8 @@
     "web": "expo start --web",
     "eject": "expo eject",
     "test": "jest --watchAll",
-    "prettier": "prettier -w ./"
+    "prettier": "prettier -w ./",
+    "debug": "open \"rndebugger://set-debugger-loc?host=localhost&port=19000\""
   },
   "jest": {
     "preset": "jest-expo"
@@ -20,6 +21,7 @@
     "@react-navigation/stack": "~5.12.8",
     "expo": "~40.0.0",
     "expo-asset": "~8.2.1",
+    "expo-av": "~8.7.0",
     "expo-constants": "~9.3.0",
     "expo-font": "~8.4.0",
     "expo-linking": "~2.0.0",
@@ -29,6 +31,7 @@
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-40.0.1.tar.gz",
+    "react-native-elements": "^3.1.0",
     "react-native-gesture-handler": "~1.8.0",
     "react-native-safe-area-context": "3.1.9",
     "react-native-screens": "~2.15.0",
@@ -40,6 +43,7 @@
     "@types/react-native": "~0.63.2",
     "jest-expo": "~40.0.0",
     "prettier": "^2.2.1",
+    "react-native-debugger-open": "^0.3.25",
     "typescript": "~4.0.0"
   },
   "private": true
