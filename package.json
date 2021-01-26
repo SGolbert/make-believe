@@ -9,7 +9,7 @@
     "test": "jest --watchAll",
     "prettier": "prettier -w ./",
     "debug": "open \"rndebugger://set-debugger-loc?host=localhost&port=19000\"",
-    "eslint": "tsc --noEmit && eslint --ext .js,.jsx,.ts,.tsx ./"
+    "lint": "tsc --noEmit && eslint --ext .js,.jsx,.ts,.tsx ./"
   },
   "jest": {
     "preset": "jest-expo"
@@ -40,6 +40,7 @@
   },
   "devDependencies": {
     "@babel/core": "~7.9.0",
+    "@react-native-community/eslint-config": "^2.0.0",
     "@types/react": "~16.9.35",
     "@types/react-native": "~0.63.2",
     "@typescript-eslint/eslint-plugin": "^4.14.1",
