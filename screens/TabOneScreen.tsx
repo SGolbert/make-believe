@@ -1,13 +1,18 @@
 import * as React from 'react'
-import { Button, StyleSheet } from 'react-native'
-import { Icon } from 'react-native-elements'
+import { ScrollView, StyleSheet } from 'react-native'
+import { Icon, Button, Input, Text } from 'react-native-elements'
 import { Audio } from 'expo-av'
 
-import EditScreenInfo from '../components/EditScreenInfo'
-import { Text, View } from '../components/Themed'
+import { View } from '../components/Themed'
+
+type ChatMessage = string | Audio.Sound
 
 export default function TabOneScreen() {
+  const [messages, setMessages] = React.useState<ChatMessage[]>([])
+  const [inputText, setInputText] = React.useState<string>('')
   const [sound, setSound] = React.useState<Audio.Sound>()
+  const [recording, setRecording] = React.useState<Audio.Recording>()
+  const [playing, setPlaying] = React.useState<boolean>(false)
 
   async function playSound() {
     console.log('Loading Sound')
@@ -32,20 +37,14 @@ export default function TabOneScreen() {
     [sound]
   )
 
-  const [recording, setRecording] = React.useState<Audio.Recording>()
-
-  const [playing, setPlaying] = React.useState<boolean>(false)
-
-  const onPlayPausePressed = () => {
-    if (sound === undefined) {
-      return
-    }
+  const onPlayPausePressed = (index: number) => {
+    const audioMsg = messages[index] as Audio.Sound
 
     if (playing) {
-      sound.stopAsync()
+      audioMsg.stopAsync()
       setPlaying(false)
     } else {
-      sound.playAsync()
+      audioMsg.playAsync()
       setPlaying(true)
     }
   }
@@ -82,42 +81,150 @@ export default function TabOneScreen() {
     const uri = recording.getURI()
     console.log('Recording stopped and stored at', uri)
     const mySound = (await recording?.createNewLoadedSoundAsync()).sound
-    setSound(mySound)
+    setMessages((chatMsgs) => [...chatMsgs, mySound])
+  }
+
+  const input = React.createRef<Input>()
+
+  const onTextSubmit = () => {
+    if (inputText !== '') {
+      setMessages((currentMsg) => [...currentMsg, inputText])
+      // setInputText('')
+    }
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <Icon
-        reverse
-        name="ios-american-football"
-        type="ionicon"
-        color="#517fa4"
-      />
+      <ScrollView style={styles.chatArea}>
+        {messages.map((message, index) => {
+          if (typeof message === 'string') {
+            return (
+              <Text h4 style={styles.chat} key={String(Math.random())}>
+                {message}
+              </Text>
+            )
+          }
+          return (
+            <Button
+              title={playing ? 'Stop Playing' : 'Play Recording'}
+              onPress={() => {
+                onPlayPausePressed(index)
+              }}
+              containerStyle={styles.button}
+              icon={
+                <Icon
+                  name={playing ? 'stop-circle' : 'play-circle'}
+                  type="ionicon"
+                  color="white"
+                />
+              }
+            />
+          )
+        })}
+      </ScrollView>
       <View
         style={styles.separator}
         lightColor="#eee"
         darkColor="rgba(255,255,255,0.1)"
       />
-      <EditScreenInfo path="/screens/TabOneScreen.tsx" />
-      <Button
-        title={recording ? 'Stop Recording' : 'Start Recording'}
-        onPress={recording ? stopRecording : startRecording}
-      />
-      <Button
-        title={playing ? 'Stop Playing' : 'Play Recording'}
-        onPress={onPlayPausePressed}
-      />
-      <Button title="Play Sound" onPress={playSound} />
+      {/* <View style={styles.buttonBox}>
+        <Button
+          title={recording ? 'Stop Recording' : 'Start Recording'}
+          onPress={recording ? stopRecording : startRecording}
+          containerStyle={styles.button}
+          icon={
+            <Icon
+              name={!recording ? 'mic-circle' : 'stop-circle'}
+              type="ionicon"
+              color="white"
+            />
+          }
+        />
+        <Button
+          title={playing ? 'Stop Playing' : 'Play Recording'}
+          onPress={onPlayPausePressed}
+          containerStyle={styles.button}
+          icon={
+            <Icon
+              name={playing ? 'stop-circle' : 'play-circle'}
+              type="ionicon"
+              color="white"
+            />
+          }
+        />
+      </View> */}
+      <View style={styles.inputBox}>
+        <Input
+          placeholder="Enter your message..."
+          onChangeText={(value) => setInputText(value)}
+          inputContainerStyle={styles.input}
+          onSubmitEditing={onTextSubmit}
+          clearTextOnFocus
+          ref={input}
+        />
+        <Button
+          onPress={onTextSubmit}
+          containerStyle={styles.button}
+          icon={<Icon name="enter-outline" type="ionicon" color="white" />}
+        />
+      </View>
+      <View style={styles.buttonBox}>
+        <Button
+          onPress={recording ? stopRecording : startRecording}
+          containerStyle={styles.button}
+          buttonStyle={styles.button2}
+          icon={
+            <Icon
+              name={!recording ? 'mic-circle' : 'stop-circle'}
+              type="ionicon"
+              color={recording ? 'black' : 'red'}
+              size={50}
+            />
+          }
+        />
+        <Button
+          title="Clear"
+          onPress={() => {
+            setMessages([])
+          }}
+          containerStyle={styles.button}
+          icon={
+            <Icon name="trash-outline" type="ionicon" color="white" size={30} />
+          }
+        />
+      </View>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
+  chat: {
+    marginBottom: 10,
+  },
+  button2: {
+    backgroundColor: 'white',
+  },
+  inputBox: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+  },
+  input: {
+    // borderWidth: 2,
+    // borderColor: 'black',
+    marginRight: 5,
+    // width: 200,
+  },
+  buttonBox: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+  },
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    padding: 20,
   },
   title: {
     fontSize: 20,
@@ -127,5 +234,12 @@ const styles = StyleSheet.create({
     marginVertical: 30,
     height: 1,
     width: '80%',
+  },
+  button: {
+    margin: 10,
+  },
+  chatArea: {
+    flex: 1,
+    width: '100%',
   },
 })
