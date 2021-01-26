@@ -1,0 +1,12 @@
+# Expo
+.expo
+.expo-shared
+
+# Assets
+assets
+
+# Node
+node_modules
+
+# VS Code
+.vscode
