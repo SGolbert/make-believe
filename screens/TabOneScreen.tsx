@@ -11,30 +11,32 @@ export default function TabOneScreen() {
 
   async function playSound() {
     console.log('Loading Sound')
-    const { sound } = await Audio.Sound.createAsync(
+    const { sound: sample } = await Audio.Sound.createAsync(
       require('../assets/sample.mp3')
     )
-    setSound(sound)
+    setSound(sample)
 
     console.log('Playing Sound')
-    await sound.playAsync()
+    await sample.playAsync()
   }
 
-  React.useEffect(() => {
-    return sound
-      ? () => {
-          console.log('Unloading Sound')
-          sound.unloadAsync()
-          setPlaying(false)
-        }
-      : undefined
-  }, [sound])
+  React.useEffect(
+    () =>
+      sound !== undefined
+        ? () => {
+            console.log('Unloading Sound')
+            sound.unloadAsync()
+            setPlaying(false)
+          }
+        : undefined,
+    [sound]
+  )
 
   const [recording, setRecording] = React.useState<Audio.Recording>()
 
   const [playing, setPlaying] = React.useState<boolean>(false)
 
-  const _onPlayPausePressed = () => {
+  const onPlayPausePressed = () => {
     if (sound === undefined) {
       return
     }
@@ -57,12 +59,12 @@ export default function TabOneScreen() {
         playsInSilentModeIOS: true,
       })
       console.log('Starting recording..')
-      const recording = new Audio.Recording()
-      await recording.prepareToRecordAsync(
+      const micRecording = new Audio.Recording()
+      await micRecording.prepareToRecordAsync(
         Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY
       )
-      await recording.startAsync()
-      setRecording(recording)
+      await micRecording.startAsync()
+      setRecording(micRecording)
       console.log('Recording started')
     } catch (err) {
       console.error('Failed to start recording', err)
@@ -104,7 +106,7 @@ export default function TabOneScreen() {
       />
       <Button
         title={playing ? 'Stop Playing' : 'Play Recording'}
-        onPress={_onPlayPausePressed}
+        onPress={onPlayPausePressed}
       />
       <Button title="Play Sound" onPress={playSound} />
     </View>

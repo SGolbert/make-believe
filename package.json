@@ -9,7 +9,7 @@
     "test": "jest --watchAll",
     "prettier": "prettier -w ./",
     "debug": "open \"rndebugger://set-debugger-loc?host=localhost&port=19000\"",
-    "lint": "tsc --noEmit && eslint --ext .js,.jsx,.ts,.tsx ./"
+    "lint": "eslint --ext .jsx,.ts,.tsx ./"
   },
   "jest": {
     "preset": "jest-expo"
