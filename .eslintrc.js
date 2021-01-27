@@ -27,5 +27,6 @@ module.exports = {
     'react/no-unescaped-entities': 0,
     'react/jsx-props-no-spreading': 0,
     'react/destructuring-assignment': 0,
+    'no-else-return': 0,
   },
 }
