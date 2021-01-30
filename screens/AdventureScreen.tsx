@@ -1,7 +1,9 @@
+/* eslint-disable no-console */
 import * as React from 'react'
-import { ScrollView, StyleSheet } from 'react-native'
+import { ScrollView } from 'react-native'
 import { Icon, Button, Input, Text } from 'react-native-elements'
 import { Audio, AVPlaybackStatus } from 'expo-av'
+import styled from 'styled-components/native'
 
 import { View } from '../components/Themed'
 
@@ -117,24 +119,23 @@ export default function TabOneScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <ScrollView style={styles.chatArea}>
+    <AdventureContainer>
+      <ChatArea>
         {messages.map((message, index) => {
           if (typeof message === 'string') {
             return (
-              <Text h4 style={styles.chat} key={String(Math.random())}>
+              <ChatText h4 key={String(Math.random())}>
                 {message}
-              </Text>
+              </ChatText>
             )
           } else {
             return (
-              <Button
+              <PlayButton
                 key={String(Math.random())}
                 title={isPlaying(index) ? 'Stop Playing' : 'Play Recording'}
                 onPress={() => {
                   onPlayPausePressed(index)
                 }}
-                containerStyle={styles.button}
                 icon={
                   <Icon
                     name={isPlaying(index) ? 'stop-circle' : 'play-circle'}
@@ -146,35 +147,26 @@ export default function TabOneScreen() {
             )
           }
         })}
-      </ScrollView>
-      <View
-        style={styles.separator}
-        lightColor="#eee"
-        darkColor="rgba(255,255,255,0.1)"
-      />
-      <View style={styles.inputBox}>
-        <View style={styles.input}>
+      </ChatArea>
+      <Separator lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+      <InputBox>
+        <InputWrapper>
           <Input
             placeholder="Enter your message..."
             onChangeText={(value) => setInputText(value)}
-            // inputContainerStyle={styles.input}
             onSubmitEditing={onTextSubmit}
             clearTextOnFocus
             ref={input}
           />
-          {/* <Text>TEST</Text> */}
-        </View>
-        <Button
+        </InputWrapper>
+        <TextSubmitButton
           onPress={onTextSubmit}
-          containerStyle={styles.button}
           icon={<Icon name="enter-outline" type="ionicon" color="white" />}
         />
-      </View>
-      <View style={styles.buttonBox}>
-        <Button
+      </InputBox>
+      <ButtonBox>
+        <RecordButton
           onPress={recording ? stopRecording : startRecording}
-          containerStyle={styles.button}
-          buttonStyle={styles.button2}
           type="clear"
           icon={
             <Icon
@@ -185,66 +177,70 @@ export default function TabOneScreen() {
             />
           }
         />
-        <Button
+        <ClearButton
           title="Clear"
           onPress={() => {
             setMessages([])
             setAudioStatus({})
           }}
-          containerStyle={styles.button}
           icon={
             <Icon name="trash-outline" type="ionicon" color="white" size={30} />
           }
         />
-      </View>
-    </View>
+      </ButtonBox>
+    </AdventureContainer>
   )
 }
 
-const styles = StyleSheet.create({
-  chat: {
+const RecordButton = styled(Button).attrs({
+  textAlign: 'right',
+  containerStyle: {
+    margin: 10,
+  },
+})``
+
+const ClearButton = RecordButton
+const TextSubmitButton = RecordButton
+const PlayButton = RecordButton
+
+const AdventureContainer = styled(View).attrs({
+  flex: 1,
+  alignItems: 'center',
+  padding: 20,
+})``
+
+const ChatArea = styled(ScrollView).attrs({
+  flex: 1,
+  width: '100%',
+})``
+
+const ChatText = styled(Text).attrs({
+  h4Style: {
     marginBottom: 10,
     color: 'red',
   },
-  button2: {
-    // backgroundColor: 'white',
-  },
-  inputBox: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-    color: 'red',
-  },
-  input: {
-    // borderWidth: 2,
-    // borderColor: 'black',
-    width: 300,
-  },
-  buttonBox: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-  },
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    padding: 20,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
-  },
-  button: {
-    margin: 10,
-  },
-  chatArea: {
-    flex: 1,
-    width: '100%',
-  },
-})
+})``
+
+const InputBox = styled(View).attrs({
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  width: '100%',
+  color: 'red',
+})``
+
+const InputWrapper = styled(View).attrs({
+  width: 300,
+})``
+
+const ButtonBox = styled(View).attrs({
+  flexDirection: 'row',
+  justifyContent: 'space-around',
+  alignItems: 'center',
+})``
+
+const Separator = styled(View).attrs({
+  marginVertical: 30,
+  height: 1,
+  width: '80%',
+})``
