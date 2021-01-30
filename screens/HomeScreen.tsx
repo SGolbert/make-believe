@@ -5,7 +5,7 @@ import { Text } from 'react-native-elements'
 
 import { View } from '../components/Themed'
 
-export default function TabTwoScreen() {
+export default function HomeScreen() {
   const homeScreenImage = require('../assets/images/homescreen.jpg')
 
   return (
@@ -19,7 +19,6 @@ export default function TabTwoScreen() {
 const HomeScreenContainer = styled(View).attrs({
   flex: 1,
   alignItems: 'center',
-  justifyContent: 'center',
 })``
 
 const Title = styled(Text).attrs({

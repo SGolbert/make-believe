@@ -1,121 +1,36 @@
-/* eslint-disable no-console */
 import * as React from 'react'
 import { ScrollView } from 'react-native'
 import { Icon, Button, Input, Text } from 'react-native-elements'
-import { Audio, AVPlaybackStatus } from 'expo-av'
 import styled from 'styled-components/native'
 
+import useRecording from '../hooks/useRecording'
+import useAudioTextChat from '../hooks/useAudioTextChat'
 import { View } from '../components/Themed'
 
-type ChatMessage = string | Audio.Sound
+export default function AdventureScreen() {
+  const { startRecording, stopRecording, isRecording } = useRecording()
+  const {
+    messages,
+    addAudioMessage,
+    addTextMessage,
+    onPlayPausePressed,
+    isPlaying,
+    clearChat,
+  } = useAudioTextChat()
 
-type AudioStatus = 'playing' | 'paused' | 'stopped'
-
-type AudioStatusDict = {
-  [key: number]: AudioStatus
-}
-
-export default function TabOneScreen() {
-  const [messages, setMessages] = React.useState<ChatMessage[]>([])
-  const [audioStatus, setAudioStatus] = React.useState<AudioStatusDict>({})
   const [inputText, setInputText] = React.useState<string>('')
-  const [recording, setRecording] = React.useState<Audio.Recording>()
-
-  const isPlaying = (index: number) => audioStatus[index] === 'playing'
-  const setAudioIndexStatus = (index: number, newStatus: AudioStatus) => {
-    setAudioStatus((oldAudioStatus) => ({
-      ...oldAudioStatus,
-      [index]: newStatus,
-    }))
-  }
-
-  const onPlayPausePressed = (index: number) => {
-    console.log(audioStatus)
-    const audioMsg = messages[index] as Audio.Sound
-
-    if (isPlaying(index)) {
-      audioMsg.stopAsync()
-      setAudioIndexStatus(index, 'stopped')
-    } else {
-      audioMsg.replayAsync()
-      setAudioIndexStatus(index, 'playing')
-    }
-  }
-
-  async function startRecording() {
-    try {
-      console.log('Requesting permissions..')
-      await Audio.requestPermissionsAsync()
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-      })
-      console.log('Starting recording..')
-      const micRecording = new Audio.Recording()
-      await micRecording.prepareToRecordAsync(
-        Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY
-      )
-      await micRecording.startAsync()
-      setRecording(micRecording)
-      console.log('Recording started')
-    } catch (err) {
-      console.error('Failed to start recording', err)
-    }
-  }
-
-  async function stopRecording() {
-    if (recording === undefined) {
-      return
-    }
-
-    console.log('Stopping recording..')
-    setRecording(undefined)
-    await recording.stopAndUnloadAsync()
-    const uri = recording.getURI()
-    console.log('Recording stopped and stored at', uri)
-    const mySound = (await recording?.createNewLoadedSoundAsync()).sound
-    mySound.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate(messages.length))
-    setMessages((chatMsgs) => [...chatMsgs, mySound])
-  }
-
   const input = React.createRef<Input>()
 
   const onTextSubmit = () => {
     if (inputText !== '') {
-      setMessages((currentMsg) => [...currentMsg, inputText])
+      addTextMessage(inputText)
       // setInputText('')
     }
   }
 
-  const onPlaybackStatusUpdate = (index: number) => (
-    playbackStatus: AVPlaybackStatus
-  ) => {
-    if (!playbackStatus.isLoaded) {
-      // Update your UI for the unloaded state
-      if (playbackStatus.error) {
-        console.log(
-          `Encountered a fatal error during playback: ${playbackStatus.error}`
-        )
-        // Send Expo team the error on Slack or the forums so we can help you debug!
-      }
-    } else {
-      // Update your UI for the loaded state
-
-      if (playbackStatus.isPlaying) {
-        // Update your UI for the playing state
-      } else {
-        // Update your UI for the paused state
-      }
-
-      if (playbackStatus.isBuffering) {
-        // Update your UI for the buffering state
-      }
-
-      if (playbackStatus.didJustFinish && !playbackStatus.isLooping) {
-        // The player has just finished playing and will stop. Maybe you want to play something else?
-        setAudioIndexStatus(index, 'stopped')
-      }
-    }
+  const stopRecordingAndAddToChat = async () => {
+    const audioMsg = await stopRecording()
+    addAudioMessage(audioMsg)
   }
 
   return (
@@ -166,13 +81,13 @@ export default function TabOneScreen() {
       </InputBox>
       <ButtonBox>
         <RecordButton
-          onPress={recording ? stopRecording : startRecording}
+          onPress={isRecording() ? stopRecordingAndAddToChat : startRecording}
           type="clear"
           icon={
             <Icon
-              name={!recording ? 'mic-circle' : 'stop-circle'}
+              name={!isRecording() ? 'mic-circle' : 'stop-circle'}
               type="ionicon"
-              color={recording ? 'black' : 'red'}
+              color={isRecording() ? 'black' : 'red'}
               size={50}
             />
           }
@@ -180,8 +95,7 @@ export default function TabOneScreen() {
         <ClearButton
           title="Clear"
           onPress={() => {
-            setMessages([])
-            setAudioStatus({})
+            clearChat()
           }}
           icon={
             <Icon name="trash-outline" type="ionicon" color="white" size={30} />
