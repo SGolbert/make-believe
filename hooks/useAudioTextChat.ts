@@ -2,6 +2,8 @@
 import React from 'react'
 import { Audio, AVPlaybackStatus } from 'expo-av'
 
+import initializeAudio from '../utils/initializeAudio'
+
 type ChatMessage = string | Audio.Sound
 
 type AudioStatus = 'playing' | 'paused' | 'stopped'
@@ -11,6 +13,8 @@ type AudioStatusDict = {
 }
 
 export default function useAudioTextChat() {
+  initializeAudio()
+
   const [messages, setMessages] = React.useState<ChatMessage[]>([])
   const [audioStatus, setAudioStatus] = React.useState<AudioStatusDict>({})
 

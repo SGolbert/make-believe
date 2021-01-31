@@ -1,7 +1,11 @@
 import React from 'react'
 import { Audio } from 'expo-av'
 
+import initializeAudio from '../utils/initializeAudio'
+
 export default function useRecording() {
+  initializeAudio()
+
   const [recording, setRecording] = React.useState<Audio.Recording>()
 
   async function startRecording() {
@@ -34,6 +38,11 @@ export default function useRecording() {
       return mySound
     } catch (error) {
       throw new Error('Failed to unload recording')
+    } finally {
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        playsInSilentModeIOS: false,
+      })
     }
   }
 
