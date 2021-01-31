@@ -53,7 +53,7 @@ export default function AdventureScreen() {
                 }}
                 icon={
                   <Icon
-                    name={isPlaying(index) ? 'stop-circle' : 'play-circle'}
+                    name={isPlaying(index) ? 'pause-circle' : 'play-circle'}
                     type="ionicon"
                     color="white"
                   />

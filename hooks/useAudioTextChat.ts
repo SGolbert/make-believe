@@ -22,7 +22,7 @@ export default function useAudioTextChat() {
     }))
   }
 
-  const onPlaybackStatusUpdate = (index: number) => (
+  const onPlaybackStatusUpdate = (index: number, audioMsg: Audio.Sound) => (
     playbackStatus: AVPlaybackStatus
   ) => {
     if (!playbackStatus.isLoaded) {
@@ -49,6 +49,8 @@ export default function useAudioTextChat() {
       if (playbackStatus.didJustFinish && !playbackStatus.isLooping) {
         // The player has just finished playing and will stop. Maybe you want to play something else?
         setAudioIndexStatus(index, 'stopped')
+        // Rewind
+        audioMsg.setPositionAsync(0)
       }
     }
   }
@@ -57,10 +59,10 @@ export default function useAudioTextChat() {
     const audioMsg = messages[index] as Audio.Sound
 
     if (isPlaying(index)) {
-      audioMsg.stopAsync()
-      setAudioIndexStatus(index, 'stopped')
+      audioMsg.pauseAsync()
+      setAudioIndexStatus(index, 'paused')
     } else {
-      audioMsg.replayAsync()
+      audioMsg.playAsync()
       setAudioIndexStatus(index, 'playing')
     }
   }
@@ -71,7 +73,7 @@ export default function useAudioTextChat() {
 
   const addAudioMessage = (msg: Audio.Sound) => {
     const index = messages.length
-    msg.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate(index))
+    msg.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate(index, msg))
     setMessages((oldMsgs) => [...oldMsgs, msg])
     setAudioIndexStatus(index, 'stopped')
   }
