@@ -53,8 +53,8 @@ export default function useAudioTextChat() {
       if (playbackStatus.didJustFinish && !playbackStatus.isLooping) {
         // The player has just finished playing and will stop. Maybe you want to play something else?
         setAudioIndexStatus(index, 'stopped')
-        // Rewind
-        audioMsg.setPositionAsync(0)
+        // Rewind, also prevents android version from looping
+        audioMsg.stopAsync()
       }
     }
   }
