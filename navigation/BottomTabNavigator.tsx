@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createStackNavigator } from '@react-navigation/stack'
 import * as React from 'react'
@@ -6,26 +5,11 @@ import { Icon } from 'react-native-elements'
 
 import Colors from '../constants/Colors'
 import useColorScheme from '../hooks/useColorScheme'
-import AdventureScreen from '../screens/AdventureScreen'
 import HomeScreen from '../screens/HomeScreen'
+import StoriesScreen from '../screens/StoriesScreen'
+import ConfigurationScreen from '../screens/ConfigurationScreen'
 
 const BottomTab = createBottomTabNavigator()
-
-// Each tab has its own navigation stack, you can read more about this pattern here:
-// https://reactnavigation.org/docs/tab-based-navigation#a-stack-navigator-for-each-tab
-const AdventureStack = createStackNavigator()
-
-function AdventureNavigator() {
-  return (
-    <AdventureStack.Navigator>
-      <AdventureStack.Screen
-        name="AdventureScreen"
-        component={AdventureScreen}
-        options={{ headerTitle: 'Adventure' }}
-      />
-    </AdventureStack.Navigator>
-  )
-}
 
 const HomeStack = createStackNavigator()
 
@@ -38,6 +22,34 @@ function HomeNavigator() {
         options={{ headerTitle: 'Home' }}
       />
     </HomeStack.Navigator>
+  )
+}
+
+const StoriesStack = createStackNavigator()
+
+function StoriesNavigator() {
+  return (
+    <StoriesStack.Navigator>
+      <StoriesStack.Screen
+        name="StoriesScreen"
+        component={StoriesScreen}
+        options={{ headerTitle: 'Stories' }}
+      />
+    </StoriesStack.Navigator>
+  )
+}
+
+const ConfigurationStack = createStackNavigator()
+
+function ConfigurationNavigator() {
+  return (
+    <ConfigurationStack.Navigator>
+      <ConfigurationStack.Screen
+        name="ConfigurationScreen"
+        component={ConfigurationScreen}
+        options={{ headerTitle: 'Configuration' }}
+      />
+    </ConfigurationStack.Navigator>
   )
 }
 
@@ -59,6 +71,24 @@ export default function BottomTabNavigator() {
         }}
       />
       <BottomTab.Screen
+        name="Stories"
+        component={StoriesNavigator}
+        options={{
+          tabBarIcon: ({ color }: { color: string }) => (
+            <Icon name="book" type="ionicon" color={color} size={30} />
+          ),
+        }}
+      />
+      <BottomTab.Screen
+        name="Configuration"
+        component={ConfigurationNavigator}
+        options={{
+          tabBarIcon: ({ color }: { color: string }) => (
+            <Icon name="construct" type="ionicon" color={color} size={30} />
+          ),
+        }}
+      />
+      {/* <BottomTab.Screen
         name="Adventure"
         component={AdventureNavigator}
         options={{
@@ -66,7 +96,7 @@ export default function BottomTabNavigator() {
             <Icon name="rocket" type="ionicon" color={color} size={30} />
           ),
         }}
-      />
+      /> */}
     </BottomTab.Navigator>
   )
 }

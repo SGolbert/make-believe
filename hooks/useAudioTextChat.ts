@@ -19,6 +19,7 @@ export default function useAudioTextChat() {
   const [audioStatus, setAudioStatus] = React.useState<AudioStatusDict>({})
 
   const isPlaying = (index: number) => audioStatus[index] === 'playing'
+
   const setAudioIndexStatus = (index: number, newStatus: AudioStatus) => {
     setAudioStatus((oldAudioStatus) => ({
       ...oldAudioStatus,
