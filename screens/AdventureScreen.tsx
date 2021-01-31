@@ -94,9 +94,7 @@ export default function AdventureScreen() {
         />
         <ClearButton
           title="Clear"
-          onPress={() => {
-            clearChat()
-          }}
+          onPress={clearChat}
           icon={
             <Icon name="trash-outline" type="ionicon" color="white" size={30} />
           }
