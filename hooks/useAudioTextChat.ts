@@ -101,8 +101,22 @@ export default function useAudioTextChat() {
         }
         const status = await message.getStatusAsync()
         let uri: string
-        if (status.isLoaded) {
+        if (status.isLoaded && Platform.OS === 'ios') {
           uri = status.uri
+        } else if (
+          status.isLoaded &&
+          Platform.OS === 'android' &&
+          status.uri.match(/Audio\/.*/) !== null
+        ) {
+          const filePath = status.uri.match(/Audio\/.*/)![0]
+          uri = `${FileSystem.cacheDirectory}${filePath}`
+        } else if (
+          status.isLoaded &&
+          Platform.OS === 'android' &&
+          status.uri.match(/Audio\/.*/) === null
+        ) {
+          const filePath = status.uri.match(/\d*.m4a/)![0]
+          uri = `${FileSystem.cacheDirectory}${filePath}`
         } else {
           throw new Error('Audio file was not loaded')
         }

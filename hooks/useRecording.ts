@@ -46,16 +46,6 @@ export default function useRecording() {
     setRecording(undefined)
     try {
       await recording.stopAndUnloadAsync()
-      const uri = recording.getURI()
-      console.log('Recording to be found at:', uri)
-      const fileAsString = await FileSystem.readAsStringAsync(uri as string, {
-        encoding: FileSystem.EncodingType.Base64,
-      })
-      console.log(
-        'Parsed audio file',
-        fileAsString.length,
-        FileSystem.documentDirectory
-      )
       const mySound = (await recording.createNewLoadedSoundAsync()).sound
       return mySound
     } catch (error) {
