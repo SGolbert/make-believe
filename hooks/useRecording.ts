@@ -1,5 +1,6 @@
 import React from 'react'
 import { Audio } from 'expo-av'
+import * as FileSystem from 'expo-file-system'
 
 import initializeAudio from '../utils/initializeAudio'
 
@@ -16,9 +17,20 @@ export default function useRecording() {
         playsInSilentModeIOS: true,
       })
       const micRecording = new Audio.Recording()
-      await micRecording.prepareToRecordAsync(
-        Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY
-      )
+      await micRecording.prepareToRecordAsync({
+        ...Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY,
+        ios: {
+          extension: '.m4a',
+          outputFormat: Audio.RECORDING_OPTION_IOS_OUTPUT_FORMAT_MPEG4AAC,
+          audioQuality: Audio.RECORDING_OPTION_IOS_AUDIO_QUALITY_MEDIUM,
+          sampleRate: 44100,
+          numberOfChannels: 1,
+          bitRate: 96400,
+          linearPCMBitDepth: 16,
+          linearPCMIsBigEndian: false,
+          linearPCMIsFloat: false,
+        },
+      })
       await micRecording.startAsync()
       setRecording(micRecording)
     } catch (err) {
@@ -34,6 +46,16 @@ export default function useRecording() {
     setRecording(undefined)
     try {
       await recording.stopAndUnloadAsync()
+      const uri = recording.getURI()
+      console.log('Recording to be found at:', uri)
+      const fileAsString = await FileSystem.readAsStringAsync(uri as string, {
+        encoding: FileSystem.EncodingType.Base64,
+      })
+      console.log(
+        'Parsed audio file',
+        fileAsString.length,
+        FileSystem.documentDirectory
+      )
       const mySound = (await recording.createNewLoadedSoundAsync()).sound
       return mySound
     } catch (error) {

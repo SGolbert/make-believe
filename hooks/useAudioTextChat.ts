@@ -1,6 +1,8 @@
 /* eslint-disable no-console */
 import React from 'react'
+import { Platform } from 'react-native'
 import { Audio, AVPlaybackStatus } from 'expo-av'
+import * as FileSystem from 'expo-file-system'
 
 import initializeAudio from '../utils/initializeAudio'
 
@@ -88,6 +90,69 @@ export default function useAudioTextChat() {
     setAudioStatus({})
   }
 
+  const saveChat = async () => {
+    const parsedChat = await Promise.all(
+      messages.map(async (message) => {
+        if (typeof message === 'string') {
+          return {
+            type: 'text',
+            value: message,
+          }
+        }
+        const status = await message.getStatusAsync()
+        let uri: string
+        if (status.isLoaded) {
+          uri = status.uri
+        } else {
+          throw new Error('Audio file was not loaded')
+        }
+        const parsedAudioFile = await FileSystem.readAsStringAsync(uri, {
+          encoding: FileSystem.EncodingType.Base64,
+        })
+        return {
+          type: 'audio',
+          value: parsedAudioFile,
+        }
+      })
+    )
+    console.log(parsedChat, `${FileSystem.documentDirectory}Save`)
+
+    FileSystem.writeAsStringAsync(
+      `${FileSystem.documentDirectory}Save`,
+      JSON.stringify(parsedChat)
+    )
+  }
+
+  const tempUri = (index: number) => {
+    if (Platform.OS === 'ios') {
+      return `${FileSystem.documentDirectory}${index}.m4a`
+    }
+    return `${FileSystem.cacheDirectory}${index}.m4a`
+  }
+
+  const loadChat = async () => {
+    const rawChat = await FileSystem.readAsStringAsync(
+      `${FileSystem.documentDirectory}Save`
+    )
+    const parsedChat: any[] = JSON.parse(rawChat)
+    console.log(Platform.OS)
+    const mappedChat = await Promise.all(
+      parsedChat.map(async (message, index) => {
+        if (message.type === 'text') {
+          return message.value as string
+        }
+        const uri = tempUri(index)
+        await FileSystem.writeAsStringAsync(uri, message.value, {
+          encoding: FileSystem.EncodingType.Base64,
+        })
+        const { sound } = await Audio.Sound.createAsync({ uri })
+        sound.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate(index, sound))
+        return sound
+      })
+    )
+    setMessages(mappedChat)
+  }
+
   return {
     messages,
     setMessages,
@@ -96,5 +161,7 @@ export default function useAudioTextChat() {
     addAudioMessage,
     isPlaying,
     clearChat,
+    saveChat,
+    loadChat,
   }
 }

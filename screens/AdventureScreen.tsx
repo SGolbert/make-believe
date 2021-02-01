@@ -16,6 +16,8 @@ export default function AdventureScreen() {
     onPlayPausePressed,
     isPlaying,
     clearChat,
+    saveChat,
+    loadChat,
   } = useAudioTextChat()
 
   const [inputText, setInputText] = React.useState<string>('')
@@ -98,6 +100,18 @@ export default function AdventureScreen() {
           icon={
             <Icon name="trash-outline" type="ionicon" color="white" size={30} />
           }
+        />
+        <ClearButton
+          title="Save"
+          onPress={saveChat}
+          icon={
+            <Icon name="arrow-down" type="ionicon" color="white" size={30} />
+          }
+        />
+        <ClearButton
+          title="Load"
+          onPress={loadChat}
+          icon={<Icon name="arrow-up" type="ionicon" color="white" size={30} />}
         />
       </ButtonBox>
     </AdventureContainer>
