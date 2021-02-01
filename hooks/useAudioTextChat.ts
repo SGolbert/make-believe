@@ -86,6 +86,11 @@ export default function useAudioTextChat() {
   }
 
   const clearChat = () => {
+    messages.forEach((message) => {
+      if (typeof message !== 'string') {
+        message.unloadAsync()
+      }
+    })
     setMessages([])
     setAudioStatus({})
   }
