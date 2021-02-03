@@ -13,6 +13,7 @@ export default function AdventureScreen() {
     messages,
     addAudioMessage,
     addTextMessage,
+    deleteMessage,
     onPlayPausePressed,
     isPlaying,
     clearChat,
@@ -39,28 +40,43 @@ export default function AdventureScreen() {
     <AdventureContainer>
       <ChatArea>
         {messages.map((message, index) => {
-          if (typeof message === 'string') {
+          if (message.type === 'text') {
             return (
-              <ChatText h4 key={String(Math.random())}>
-                {message}
-              </ChatText>
+              <ButtonBox key={String(Math.random())}>
+                <ChatText h4>{message.text}</ChatText>
+                <DeleteButton
+                  onPress={() => {
+                    deleteMessage(index)
+                  }}
+                  type="clear"
+                  icon={<Icon name="close-circle" type="ionicon" color="red" />}
+                />
+              </ButtonBox>
             )
           } else {
             return (
-              <PlayButton
-                key={String(Math.random())}
-                title={isPlaying(index) ? 'Stop Playing' : 'Play Recording'}
-                onPress={() => {
-                  onPlayPausePressed(index)
-                }}
-                icon={
-                  <Icon
-                    name={isPlaying(index) ? 'pause-circle' : 'play-circle'}
-                    type="ionicon"
-                    color="white"
-                  />
-                }
-              />
+              <ButtonBox key={String(Math.random())}>
+                <PlayButton
+                  title={isPlaying(index) ? 'Stop Playing' : 'Play Recording'}
+                  onPress={() => {
+                    onPlayPausePressed(index)
+                  }}
+                  icon={
+                    <Icon
+                      name={isPlaying(index) ? 'pause-circle' : 'play-circle'}
+                      type="ionicon"
+                      color="white"
+                    />
+                  }
+                />
+                <DeleteButton
+                  onPress={() => {
+                    deleteMessage(index)
+                  }}
+                  type="clear"
+                  icon={<Icon name="close-circle" type="ionicon" color="red" />}
+                />
+              </ButtonBox>
             )
           }
         })}
@@ -123,6 +139,10 @@ const RecordButton = styled(Button).attrs({
   containerStyle: {
     margin: 10,
   },
+})``
+
+const DeleteButton = styled(Button).attrs({
+  alignSelf: 'flex-end',
 })``
 
 const ClearButton = RecordButton

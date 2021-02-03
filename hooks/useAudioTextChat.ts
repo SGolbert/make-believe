@@ -6,7 +6,10 @@ import * as FileSystem from 'expo-file-system'
 
 import initializeAudio from '../utils/initializeAudio'
 
-type ChatMessage = string | Audio.Sound
+type TextMsg = { type: 'text'; text: string }
+type AudioMsg = { type: 'audio'; sound: Audio.Sound }
+
+type ChatMessage = TextMsg | AudioMsg
 
 type AudioStatus = 'playing' | 'paused' | 'stopped'
 
@@ -63,7 +66,11 @@ export default function useAudioTextChat() {
   }
 
   const onPlayPausePressed = (index: number) => {
-    const audioMsg = messages[index] as Audio.Sound
+    const msg = messages[index]
+    if (msg.type !== 'audio') {
+      throw new Error('onPlayPausePressed: tried to play a non-audio message')
+    }
+    const audioMsg = msg.sound
 
     if (isPlaying(index)) {
       audioMsg.pauseAsync()
@@ -75,20 +82,28 @@ export default function useAudioTextChat() {
   }
 
   const addTextMessage = (msg: string) => {
-    setMessages((oldMsgs) => [...oldMsgs, msg])
+    setMessages((oldMsgs) => [...oldMsgs, { type: 'text', text: msg }])
   }
 
   const addAudioMessage = (msg: Audio.Sound) => {
     const index = messages.length
     msg.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate(index, msg))
-    setMessages((oldMsgs) => [...oldMsgs, msg])
+    setMessages((oldMsgs) => [...oldMsgs, { type: 'audio', sound: msg }])
     setAudioIndexStatus(index, 'stopped')
+  }
+
+  const deleteMessage = (index: number) => {
+    const msg = messages[index]
+    if (msg.type === 'audio') {
+      msg.sound.unloadAsync()
+    }
+    setMessages((arr) => arr.slice(0, index).concat(arr.slice(index + 1)))
   }
 
   const clearChat = () => {
     messages.forEach((message) => {
-      if (typeof message !== 'string') {
-        message.unloadAsync()
+      if (message.type === 'audio') {
+        message.sound.unloadAsync()
       }
     })
     setMessages([])
@@ -98,13 +113,10 @@ export default function useAudioTextChat() {
   const saveChat = async () => {
     const parsedChat = await Promise.all(
       messages.map(async (message) => {
-        if (typeof message === 'string') {
-          return {
-            type: 'text',
-            value: message,
-          }
+        if (message.type === 'text') {
+          return message
         }
-        const status = await message.getStatusAsync()
+        const status = await message.sound.getStatusAsync()
         let uri: string
         if (status.isLoaded && Platform.OS === 'ios') {
           uri = status.uri
@@ -130,7 +142,7 @@ export default function useAudioTextChat() {
         })
         return {
           type: 'audio',
-          value: parsedAudioFile,
+          parsedSound: parsedAudioFile,
         }
       })
     )
@@ -156,15 +168,15 @@ export default function useAudioTextChat() {
     const mappedChat = await Promise.all(
       parsedChat.map(async (message, index) => {
         if (message.type === 'text') {
-          return message.value as string
+          return message
         }
         const uri = tempUri(index)
-        await FileSystem.writeAsStringAsync(uri, message.value, {
+        await FileSystem.writeAsStringAsync(uri, message.parsedSound, {
           encoding: FileSystem.EncodingType.Base64,
         })
         const { sound } = await Audio.Sound.createAsync({ uri })
         sound.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate(index, sound))
-        return sound
+        return { type: 'audio', sound }
       })
     )
     setMessages(mappedChat)
@@ -176,6 +188,7 @@ export default function useAudioTextChat() {
     onPlayPausePressed,
     addTextMessage,
     addAudioMessage,
+    deleteMessage,
     isPlaying,
     clearChat,
     saveChat,
