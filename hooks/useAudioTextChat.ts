@@ -134,7 +134,6 @@ export default function useAudioTextChat() {
         }
       })
     )
-    console.log(parsedChat, `${FileSystem.documentDirectory}Save`)
 
     FileSystem.writeAsStringAsync(
       `${FileSystem.documentDirectory}Save`,
@@ -154,7 +153,6 @@ export default function useAudioTextChat() {
       `${FileSystem.documentDirectory}Save`
     )
     const parsedChat: any[] = JSON.parse(rawChat)
-    console.log(Platform.OS)
     const mappedChat = await Promise.all(
       parsedChat.map(async (message, index) => {
         if (message.type === 'text') {
