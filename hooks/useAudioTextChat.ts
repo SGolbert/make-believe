@@ -6,12 +6,12 @@ import * as FileSystem from 'expo-file-system'
 
 import initializeAudio from '../utils/initializeAudio'
 
+type AudioStatus = 'playing' | 'paused' | 'stopped'
+
 type TextMsg = { type: 'text'; text: string }
-type AudioMsg = { type: 'audio'; sound: Audio.Sound }
+type AudioMsg = { type: 'audio'; sound: Audio.Sound; status: AudioStatus }
 
 type ChatMessage = TextMsg | AudioMsg
-
-type AudioStatus = 'playing' | 'paused' | 'stopped'
 
 type AudioStatusDict = {
   [key: number]: AudioStatus
@@ -23,16 +23,28 @@ export default function useAudioTextChat() {
   const [messages, setMessages] = React.useState<ChatMessage[]>([])
   const [audioStatus, setAudioStatus] = React.useState<AudioStatusDict>({})
 
-  const isPlaying = (index: number) => audioStatus[index] === 'playing'
-
-  const setAudioIndexStatus = (index: number, newStatus: AudioStatus) => {
-    setAudioStatus((oldAudioStatus) => ({
-      ...oldAudioStatus,
-      [index]: newStatus,
-    }))
+  const isPlaying = (index: number) => {
+    const msg = messages[index]
+    if (msg.type !== 'audio') {
+      throw new Error('isPlaying: asked status of non-audio message.')
+    }
+    return msg.status === 'playing'
   }
 
-  const onPlaybackStatusUpdate = (index: number, audioMsg: Audio.Sound) => (
+  const setAudioIndexStatus = (index: number, newStatus: AudioStatus) => {
+    const msg = messages[index]
+    if (msg.type !== 'audio') {
+      throw new Error('setAudioIndexStatus: set status of non-audio message.')
+    }
+    msg.status = newStatus
+    setMessages((oldMsgs) => {
+      const newMsgs = [...oldMsgs]
+      newMsgs[index] = msg
+      return newMsgs
+    })
+  }
+
+  const onPlaybackStatusUpdate = (audioMsg: AudioMsg) => (
     playbackStatus: AVPlaybackStatus
   ) => {
     if (!playbackStatus.isLoaded) {
@@ -58,9 +70,13 @@ export default function useAudioTextChat() {
 
       if (playbackStatus.didJustFinish && !playbackStatus.isLooping) {
         // The player has just finished playing and will stop. Maybe you want to play something else?
-        setAudioIndexStatus(index, 'stopped')
+        // eslint-disable-next-line no-param-reassign
+        audioMsg.status = 'stopped'
+
         // Rewind, also prevents android version from looping
-        audioMsg.stopAsync()
+        audioMsg.sound.stopAsync()
+        // Trigger a re-render
+        setMessages((msgs) => [...msgs])
       }
     }
   }
@@ -86,10 +102,9 @@ export default function useAudioTextChat() {
   }
 
   const addAudioMessage = (msg: Audio.Sound) => {
-    const index = messages.length
-    msg.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate(index, msg))
-    setMessages((oldMsgs) => [...oldMsgs, { type: 'audio', sound: msg }])
-    setAudioIndexStatus(index, 'stopped')
+    const audioMsg: AudioMsg = { type: 'audio', sound: msg, status: 'stopped' }
+    msg.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate(audioMsg))
+    setMessages((oldMsgs) => [...oldMsgs, audioMsg])
   }
 
   const deleteMessage = (index: number) => {
@@ -100,12 +115,14 @@ export default function useAudioTextChat() {
     setMessages((arr) => arr.slice(0, index).concat(arr.slice(index + 1)))
   }
 
-  const clearChat = () => {
-    messages.forEach((message) => {
-      if (message.type === 'audio') {
-        message.sound.unloadAsync()
-      }
-    })
+  const clearChat = async () => {
+    await Promise.all(
+      messages.map(async (message) => {
+        if (message.type === 'audio') {
+          await message.sound.unloadAsync()
+        }
+      })
+    )
     setMessages([])
     setAudioStatus({})
   }
@@ -161,6 +178,7 @@ export default function useAudioTextChat() {
   }
 
   const loadChat = async () => {
+    await clearChat()
     const rawChat = await FileSystem.readAsStringAsync(
       `${FileSystem.documentDirectory}Save`
     )
@@ -168,15 +186,16 @@ export default function useAudioTextChat() {
     const mappedChat = await Promise.all(
       parsedChat.map(async (message, index) => {
         if (message.type === 'text') {
-          return message
+          return message as TextMsg
         }
         const uri = tempUri(index)
         await FileSystem.writeAsStringAsync(uri, message.parsedSound, {
           encoding: FileSystem.EncodingType.Base64,
         })
         const { sound } = await Audio.Sound.createAsync({ uri })
-        sound.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate(index, sound))
-        return { type: 'audio', sound }
+        const audioMsg: AudioMsg = { type: 'audio', sound, status: 'stopped' }
+        sound.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate(audioMsg))
+        return audioMsg
       })
     )
     setMessages(mappedChat)
