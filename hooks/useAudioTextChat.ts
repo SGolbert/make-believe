@@ -13,15 +13,10 @@ type AudioMsg = { type: 'audio'; sound: Audio.Sound; status: AudioStatus }
 
 type ChatMessage = TextMsg | AudioMsg
 
-type AudioStatusDict = {
-  [key: number]: AudioStatus
-}
-
 export default function useAudioTextChat() {
   initializeAudio()
 
   const [messages, setMessages] = React.useState<ChatMessage[]>([])
-  const [audioStatus, setAudioStatus] = React.useState<AudioStatusDict>({})
 
   const isPlaying = (index: number) => {
     const msg = messages[index]
@@ -124,7 +119,6 @@ export default function useAudioTextChat() {
       })
     )
     setMessages([])
-    setAudioStatus({})
   }
 
   const saveChat = async () => {
