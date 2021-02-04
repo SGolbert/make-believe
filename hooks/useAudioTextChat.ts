@@ -6,10 +6,19 @@ import * as FileSystem from 'expo-file-system'
 
 import initializeAudio from '../utils/initializeAudio'
 
+type Character = {
+  name: string
+}
+
 type AudioStatus = 'playing' | 'paused' | 'stopped'
 
-type TextMsg = { type: 'text'; text: string }
-type AudioMsg = { type: 'audio'; sound: Audio.Sound; status: AudioStatus }
+type TextMsg = { type: 'text'; text: string; character: Character }
+type AudioMsg = {
+  type: 'audio'
+  sound: Audio.Sound
+  status: AudioStatus
+  character: Character
+}
 
 type ChatMessage = TextMsg | AudioMsg
 
@@ -92,12 +101,20 @@ export default function useAudioTextChat() {
     }
   }
 
-  const addTextMessage = (msg: string) => {
-    setMessages((oldMsgs) => [...oldMsgs, { type: 'text', text: msg }])
+  const addTextMessage = (msg: string, character: Character) => {
+    setMessages((oldMsgs) => [
+      ...oldMsgs,
+      { type: 'text', text: msg, character },
+    ])
   }
 
-  const addAudioMessage = (msg: Audio.Sound) => {
-    const audioMsg: AudioMsg = { type: 'audio', sound: msg, status: 'stopped' }
+  const addAudioMessage = (msg: Audio.Sound, character: Character) => {
+    const audioMsg: AudioMsg = {
+      type: 'audio',
+      sound: msg,
+      status: 'stopped',
+      character,
+    }
     msg.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate(audioMsg))
     setMessages((oldMsgs) => [...oldMsgs, audioMsg])
   }
@@ -154,6 +171,7 @@ export default function useAudioTextChat() {
         return {
           type: 'audio',
           parsedSound: parsedAudioFile,
+          character: message.character,
         }
       })
     )
@@ -177,6 +195,7 @@ export default function useAudioTextChat() {
       `${FileSystem.documentDirectory}Save`
     )
     const parsedChat: any[] = JSON.parse(rawChat)
+
     const mappedChat = await Promise.all(
       parsedChat.map(async (message, index) => {
         if (message.type === 'text') {
@@ -187,7 +206,12 @@ export default function useAudioTextChat() {
           encoding: FileSystem.EncodingType.Base64,
         })
         const { sound } = await Audio.Sound.createAsync({ uri })
-        const audioMsg: AudioMsg = { type: 'audio', sound, status: 'stopped' }
+        const audioMsg: AudioMsg = {
+          type: 'audio',
+          sound,
+          status: 'stopped',
+          character: message.character,
+        }
         sound.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate(audioMsg))
         return audioMsg
       })

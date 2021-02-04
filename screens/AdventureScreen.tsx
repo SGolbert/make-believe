@@ -1,6 +1,14 @@
+/* eslint-disable react-native/no-inline-styles */
 import * as React from 'react'
 import { ScrollView } from 'react-native'
-import { Icon, Button, Input, Text } from 'react-native-elements'
+import {
+  Icon,
+  Button,
+  Input,
+  Text,
+  BottomSheet,
+  ListItem,
+} from 'react-native-elements'
 import styled from 'styled-components/native'
 
 import useRecording from '../hooks/useRecording'
@@ -8,6 +16,35 @@ import useAudioTextChat from '../hooks/useAudioTextChat'
 import { View } from '../components/Themed'
 
 export default function AdventureScreen() {
+  const [char, setChar] = React.useState({ name: 'Seba' })
+  const [isVisible, setIsVisible] = React.useState<boolean>(false)
+  const list = [
+    {
+      name: 'Seba',
+      containerStyle: { backgroundColor: 'blue' },
+      titleStyle: { color: 'white' },
+      onPress: () => {
+        setChar({ name: 'Seba' })
+        setIsVisible(false)
+      },
+    },
+    {
+      name: 'Sujin',
+      containerStyle: { backgroundColor: 'purple' },
+      titleStyle: { color: 'white' },
+      onPress: () => {
+        setChar({ name: 'Sujin' })
+        setIsVisible(false)
+      },
+    },
+    {
+      name: 'Cancel',
+      containerStyle: { backgroundColor: 'red' },
+      titleStyle: { color: 'white' },
+      onPress: () => setIsVisible(false),
+    },
+  ]
+
   const { startRecording, stopRecording, isRecording } = useRecording()
   const {
     messages,
@@ -26,14 +63,14 @@ export default function AdventureScreen() {
 
   const onTextSubmit = () => {
     if (inputText !== '') {
-      addTextMessage(inputText)
+      addTextMessage(inputText, char)
       // setInputText('')
     }
   }
 
   const stopRecordingAndAddToChat = async () => {
     const audioMsg = await stopRecording()
-    addAudioMessage(audioMsg)
+    addAudioMessage(audioMsg, char)
   }
 
   return (
@@ -43,6 +80,7 @@ export default function AdventureScreen() {
           if (message.type === 'text') {
             return (
               <ButtonBox key={String(Math.random())}>
+                <ChatText h4>{message.character.name}</ChatText>
                 <ChatText h4>{message.text}</ChatText>
                 <DeleteButton
                   onPress={() => {
@@ -56,6 +94,7 @@ export default function AdventureScreen() {
           } else {
             return (
               <ButtonBox key={String(Math.random())}>
+                <ChatText h4>{message.character.name}</ChatText>
                 <PlayButton
                   title={isPlaying(index) ? 'Stop Playing' : 'Play Recording'}
                   onPress={() => {
@@ -129,7 +168,33 @@ export default function AdventureScreen() {
           onPress={loadChat}
           icon={<Icon name="arrow-up" type="ionicon" color="white" size={30} />}
         />
+        <ClearButton
+          title="Load"
+          onPress={() => {
+            setIsVisible(true)
+          }}
+          icon={
+            <Icon name="arrow-up" type="ionicon" color="yellow" size={30} />
+          }
+        />
       </ButtonBox>
+      <BottomSheet
+        isVisible={isVisible}
+        containerStyle={{ backgroundColor: 'rgba(0.5, 0.25, 0, 0.2)' }}
+        modalProps={{}}
+      >
+        {list.map((l, i) => (
+          <ListItem
+            key={Math.random()}
+            containerStyle={l.containerStyle}
+            onPress={l.onPress}
+          >
+            <ListItem.Content>
+              <ListItem.Title style={l.titleStyle}>{l.name}</ListItem.Title>
+            </ListItem.Content>
+          </ListItem>
+        ))}
+      </BottomSheet>
     </AdventureContainer>
   )
 }
