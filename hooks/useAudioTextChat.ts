@@ -3,16 +3,25 @@ import React from 'react'
 import { Platform } from 'react-native'
 import { Audio, AVPlaybackStatus } from 'expo-av'
 import * as FileSystem from 'expo-file-system'
+import Amplify, { API, graphqlOperation } from 'aws-amplify'
 
 import initializeAudio from '../utils/initializeAudio'
+import {
+  // createCharacter,
+  createAudioOrTextMsg,
+  // createChat,
+  deleteAudioOrTextMsg,
+} from '../amplify/graphql/mutations'
+import { getChat } from '../amplify/graphql/customQueries'
+// @ts-ignore: Import from JS file
+import awsconfig from '../amplify/aws-exports'
+import { Character } from './useCharacters'
 
-type Character = {
-  name: string
-}
+Amplify.configure(awsconfig)
 
 type AudioStatus = 'playing' | 'paused' | 'stopped'
 
-type TextMsg = { type: 'text'; text: string; character: Character }
+type TextMsg = { id: string; type: 'text'; text: string; character: Character }
 type AudioMsg = {
   type: 'audio'
   sound: Audio.Sound
@@ -22,7 +31,7 @@ type AudioMsg = {
 
 type ChatMessage = TextMsg | AudioMsg
 
-export default function useAudioTextChat() {
+export default function useAudioTextChat(chatId: string) {
   initializeAudio()
 
   const [messages, setMessages] = React.useState<ChatMessage[]>([])
@@ -101,10 +110,31 @@ export default function useAudioTextChat() {
     }
   }
 
-  const addTextMessage = (msg: string, character: Character) => {
+  const addTextMessage = async (
+    msg: string,
+    character: Character,
+    id?: string
+  ) => {
+    let newId: string
+    if (id === undefined) {
+      const resp = await API.graphql(
+        graphqlOperation(createAudioOrTextMsg, {
+          input: {
+            chatID: chatId,
+            audioOrTextMsgCharacterId: character.id,
+            type: 'text',
+            value: msg,
+          },
+        })
+      )
+      newId = resp.data.createAudioOrTextMsg.id
+    }
+
+    console.log('NEWID', newId)
+
     setMessages((oldMsgs) => [
       ...oldMsgs,
-      { type: 'text', text: msg, character },
+      { type: 'text', text: msg, character, id: id ?? newId },
     ])
   }
 
@@ -124,6 +154,17 @@ export default function useAudioTextChat() {
     if (msg.type === 'audio') {
       msg.sound.unloadAsync()
     }
+
+    if (msg.type === 'text') {
+      API.graphql(
+        graphqlOperation(deleteAudioOrTextMsg, {
+          input: {
+            id: msg.id,
+          },
+        })
+      )
+    }
+
     setMessages((arr) => arr.slice(0, index).concat(arr.slice(index + 1)))
   }
 
@@ -218,6 +259,26 @@ export default function useAudioTextChat() {
     )
     setMessages(mappedChat)
   }
+
+  React.useEffect(() => {
+    const loadDynamo = async () => {
+      await clearChat()
+      const resp = await API.graphql(
+        graphqlOperation(getChat, {
+          id: chatId,
+        })
+      )
+      const messages: any[] = resp.data.getChat.messages.items
+      const sortedMsgs = messages.sort((msg1, msg2) =>
+        msg1.createdAt > msg2.createdAt ? 1 : -1
+      )
+      sortedMsgs.forEach((msg) => {
+        addTextMessage(msg.value, msg.character, msg.id)
+      })
+    }
+
+    loadDynamo()
+  }, [])
 
   return {
     messages,

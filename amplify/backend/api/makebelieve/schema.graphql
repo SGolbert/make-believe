@@ -1,5 +1,26 @@
-type Todo @model {
+type Chat @model {
   id: ID!
+  messages: [AudioOrTextMsg!]!
+    @connection(keyName: "ChatMessages", fields: ["id"])
+  characters: [Character!]!
+    @connection(keyName: "ChatCharacters", fields: ["id"])
+}
+
+enum MsgType {
+  audio
+  text
+}
+
+type AudioOrTextMsg @model @key(name: "ChatMessages", fields: ["chatID"]) {
+  id: ID!
+  chatID: ID!
+  type: MsgType!
+  value: String!
+  character: Character! @connection
+}
+
+type Character @model @key(name: "ChatCharacters", fields: ["chatID"]) {
+  id: ID!
+  chatID: ID!
   name: String!
-  description: String
 }

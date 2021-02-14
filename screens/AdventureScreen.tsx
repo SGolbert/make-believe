@@ -13,37 +13,31 @@ import styled from 'styled-components/native'
 
 import useRecording from '../hooks/useRecording'
 import useAudioTextChat from '../hooks/useAudioTextChat'
+import useCharacters, { Character } from '../hooks/useCharacters'
 import { View } from '../components/Themed'
 
+const CHAT_ID = 'ec5b841d-1e60-42ef-9df7-8d2440127e60'
+
 export default function AdventureScreen() {
-  const [char, setChar] = React.useState({ name: 'Seba' })
+  const [char, setChar] = React.useState<Character>({ name: 'DM', id: 'DM' })
+  const { chars, setChars } = useCharacters(CHAT_ID)
   const [isVisible, setIsVisible] = React.useState<boolean>(false)
-  const list = [
-    {
-      name: 'Seba',
-      containerStyle: { backgroundColor: 'blue' },
-      titleStyle: { color: 'white' },
-      onPress: () => {
-        setChar({ name: 'Seba' })
-        setIsVisible(false)
-      },
+
+  const list = chars.map((character, index) => ({
+    name: character.name,
+    containerStyle: { backgroundColor: index % 2 ? 'blue' : 'purple' },
+    titleStyle: { color: 'white' },
+    onPress: () => {
+      setChar(character)
+      setIsVisible(false)
     },
-    {
-      name: 'Sujin',
-      containerStyle: { backgroundColor: 'purple' },
-      titleStyle: { color: 'white' },
-      onPress: () => {
-        setChar({ name: 'Sujin' })
-        setIsVisible(false)
-      },
-    },
-    {
-      name: 'Cancel',
-      containerStyle: { backgroundColor: 'red' },
-      titleStyle: { color: 'white' },
-      onPress: () => setIsVisible(false),
-    },
-  ]
+  }))
+  list.push({
+    name: 'Cancel',
+    containerStyle: { backgroundColor: 'red' },
+    titleStyle: { color: 'white' },
+    onPress: () => setIsVisible(false),
+  })
 
   const { startRecording, stopRecording, isRecording } = useRecording()
   const {
@@ -56,7 +50,7 @@ export default function AdventureScreen() {
     clearChat,
     saveChat,
     loadChat,
-  } = useAudioTextChat()
+  } = useAudioTextChat(CHAT_ID)
 
   const [inputText, setInputText] = React.useState<string>('')
   const input = React.createRef<Input>()
