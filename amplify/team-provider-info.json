@@ -1,0 +1,15 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-makebelieve-dev-210947-authRole",
+      "UnauthRoleArn": "arn:aws:iam::959911659606:role/amplify-makebelieve-dev-210947-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::959911659606:role/amplify-makebelieve-dev-210947-authRole",
+      "Region": "eu-west-1",
+      "DeploymentBucketName": "amplify-makebelieve-dev-210947-deployment",
+      "UnauthRoleName": "amplify-makebelieve-dev-210947-unauthRole",
+      "StackName": "amplify-makebelieve-dev-210947",
+      "StackId": "arn:aws:cloudformation:eu-west-1:959911659606:stack/amplify-makebelieve-dev-210947/6d302320-6e37-11eb-90e7-0ac4e6386883",
+      "AmplifyAppId": "dn5baptoche8"
+    }
+  }
+}

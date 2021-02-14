@@ -1,0 +1,17 @@
+{
+  "projectName": "makebelieve",
+  "version": "3.0",
+  "frontend": "javascript",
+  "javascript": {
+    "framework": "react-native",
+    "config": {
+      "SourceDir": "amplify",
+      "DistributionDir": "/",
+      "BuildCommand": "npm run-script build",
+      "StartCommand": "yarn start"
+    }
+  },
+  "providers": [
+    "awscloudformation"
+  ]
+}

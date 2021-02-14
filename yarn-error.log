@@ -1,30 +1,30 @@
 Arguments: 
-  /Users/sebastiangolbert/.nvm/versions/node/v12.20.0/bin/node /usr/local/bin/yarn add --dev @types/styled-components/native
+  /Users/sebastiangolbert/.nvm/versions/node/v14.15.4/bin/node /usr/local/bin/yarn add aws-aplify
 
 PATH: 
-  /Users/sebastiangolbert/.nvm/versions/node/v12.20.0/bin:/Users/sebastiangolbert/bin:/usr/local/bin:/Users/sebastiangolbert/Library/Android/sdk/platform-tools:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin:/Users/sebastiangolbert/.nvm/versions/node/v12.20.0/bin:/Users/sebastiangolbert/bin:/Users/sebastiangolbert/Library/Android/sdk/platform-tools
+  /Users/sebastiangolbert/.nvm/versions/node/v14.15.4/bin:/Users/sebastiangolbert/bin:/usr/local/bin:/Users/sebastiangolbert/Library/Android/sdk/platform-tools:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin:/Users/sebastiangolbert/.nvm/versions/node/v14.15.4/bin:/Users/sebastiangolbert/bin:/Users/sebastiangolbert/Library/Android/sdk/platform-tools
 
 Yarn version: 
   1.22.10
 
 Node version: 
-  12.20.0
+  14.15.4
 
 Platform: 
   darwin x64
 
 Trace: 
-  Error: https://registry.yarnpkg.com/@types%2fstyled-components/native: Request "https://registry.yarnpkg.com/@types%2fstyled-components/native" returned a 405
-      at Request.params.callback [as _callback] (/usr/local/lib/node_modules/yarn/lib/cli.js:66997:18)
+  Error: https://registry.yarnpkg.com/aws-aplify: Not found
+      at Request.params.callback [as _callback] (/usr/local/lib/node_modules/yarn/lib/cli.js:66988:18)
       at Request.self.callback (/usr/local/lib/node_modules/yarn/lib/cli.js:140662:22)
-      at Request.emit (events.js:314:20)
+      at Request.emit (events.js:315:20)
       at Request.<anonymous> (/usr/local/lib/node_modules/yarn/lib/cli.js:141634:10)
-      at Request.emit (events.js:314:20)
+      at Request.emit (events.js:315:20)
       at IncomingMessage.<anonymous> (/usr/local/lib/node_modules/yarn/lib/cli.js:141556:12)
-      at Object.onceWrapper (events.js:420:28)
-      at IncomingMessage.emit (events.js:326:22)
-      at endReadableNT (_stream_readable.js:1241:12)
-      at processTicksAndRejections (internal/process/task_queues.js:84:21)
+      at Object.onceWrapper (events.js:421:28)
+      at IncomingMessage.emit (events.js:327:22)
+      at endReadableNT (internal/streams/readable.js:1327:12)
+      at processTicksAndRejections (internal/process/task_queues.js:80:21)
 
 npm manifest: 
   {
@@ -45,14 +45,17 @@ npm manifest:
     },
     "dependencies": {
       "@expo/vector-icons": "^12.0.0",
+      "@react-native-async-storage/async-storage": "^1.13.4",
       "@react-native-community/masked-view": "0.1.10",
       "@react-navigation/bottom-tabs": "5.11.2",
+      "@react-navigation/material-top-tabs": "^5.3.13",
       "@react-navigation/native": "~5.8.10",
       "@react-navigation/stack": "~5.12.8",
       "expo": "~40.0.0",
       "expo-asset": "~8.2.1",
       "expo-av": "~8.7.0",
       "expo-constants": "~9.3.0",
+      "expo-file-system": "~9.3.0",
       "expo-font": "~8.4.0",
       "expo-linking": "~2.0.0",
       "expo-splash-screen": "~0.8.0",
@@ -63,8 +66,10 @@ npm manifest:
       "react-native": "https://github.com/expo/react-native/archive/sdk-40.0.1.tar.gz",
       "react-native-elements": "^3.1.0",
       "react-native-gesture-handler": "~1.8.0",
+      "react-native-reanimated": "^1.13.2",
       "react-native-safe-area-context": "3.1.9",
       "react-native-screens": "~2.15.0",
+      "react-native-tab-view": "^2.15.2",
       "react-native-web": "~0.13.12",
       "styled-components": "^5.2.1"
     },
@@ -73,7 +78,7 @@ npm manifest:
       "@react-native-community/eslint-config": "^2.0.0",
       "@types/react": "~16.9.35",
       "@types/react-native": "~0.63.2",
-      "@types/styled-components": "^5.1.7",
+      "@types/styled-components-react-native": "^5.1.1",
       "@typescript-eslint/eslint-plugin": "^4.14.1",
       "eslint": "^7.18.0",
       "eslint-config-airbnb-typescript": "^12.0.0",
@@ -1922,6 +1927,13 @@ Lockfile:
       "@nodelib/fs.scandir" "2.1.4"
       fastq "^1.6.0"
   
+  "@react-native-async-storage/async-storage@^1.13.4":
+    version "1.13.4"
+    resolved "https://registry.yarnpkg.com/@react-native-async-storage/async-storage/-/async-storage-1.13.4.tgz#05d29b7884be16fc3c40dcaa44e02fa291a020a2"
+    integrity sha512-P7cbA77XNhUFEBKAIaex17mKI/Db1RQHZVwplagskqzEnpqB+Yi+/l8QeOMr5OJdfmPkBA+V7DOmuWeB8Po6cQ==
+    dependencies:
+      deep-assign "^3.0.0"
+  
   "@react-native-community/cli-debugger-ui@^4.13.1":
     version "4.13.1"
     resolved "https://registry.yarnpkg.com/@react-native-community/cli-debugger-ui/-/cli-debugger-ui-4.13.1.tgz#07de6d4dab80ec49231de1f1fbf658b4ad39b32c"
@@ -2089,6 +2101,13 @@ Lockfile:
       nanoid "^3.1.15"
       query-string "^6.13.6"
       react-is "^16.13.0"
+  
+  "@react-navigation/material-top-tabs@^5.3.13":
+    version "5.3.13"
+    resolved "https://registry.yarnpkg.com/@react-navigation/material-top-tabs/-/material-top-tabs-5.3.13.tgz#951353f96c081ab18c4e0053a0c28ebce5e46d28"
+    integrity sha512-3+EyD0WICtf6HdZYP+EnunNfESv2I/JeQOV06Q+U2C2p42+UKAHAc3Eqwd45GdVUuRlH1dQ7HRP40xVJXYDcEQ==
+    dependencies:
+      color "^3.1.3"
   
   "@react-navigation/native@~5.8.10":
     version "5.8.10"
@@ -2272,7 +2291,16 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/@types/stack-utils/-/stack-utils-1.0.1.tgz#0a851d3bd96498fa25c33ab7278ed3bd65f06c3e"
     integrity sha512-l42BggppR6zLmpfU6fq9HEa2oGPEI8yrSPL3GITjfRInppYFahObbIQOQK3UGxEnyQpltZLaPe75046NOZQikw==
   
-  "@types/styled-components@^5.1.7":
+  "@types/styled-components-react-native@^5.1.1":
+    version "5.1.1"
+    resolved "https://registry.yarnpkg.com/@types/styled-components-react-native/-/styled-components-react-native-5.1.1.tgz#dcee7171b3844ce00a8303d8f5fcaeae7b25915d"
+    integrity sha512-1CJvTkaTb9YJXjmecZAZNyMHlvGdNtunRrOeyaXYdOzLKgwABIeEcZiO/TKT7CAzLdgPwBUj5Z4ixe4Vk5ndlw==
+    dependencies:
+      "@types/react" "*"
+      "@types/react-native" "*"
+      "@types/styled-components" "*"
+  
+  "@types/styled-components@*":
     version "5.1.7"
     resolved "https://registry.yarnpkg.com/@types/styled-components/-/styled-components-5.1.7.tgz#3cd10b088c1cb1acde2e4b166b3e8275a3083710"
     integrity sha512-BJzPhFygYspyefAGFZTZ/8lCEY4Tk+Iqktvnko3xmJf9LrLqs3+grxPeU3O0zLl6yjbYBopD0/VikbHgXDbJtA==
@@ -8113,6 +8141,13 @@ Lockfile:
       lodash "^4.17.15"
       prop-types "^15.7.2"
   
+  react-native-reanimated@^1.13.2:
+    version "1.13.2"
+    resolved "https://registry.yarnpkg.com/react-native-reanimated/-/react-native-reanimated-1.13.2.tgz#1ae5457b24b4913d173a5a064bb28eae7783d293"
+    integrity sha512-O+WhgxSjOIzcVdAAvx+h2DY331Ek1knKlaq+jsNLpC1fhRy9XTdOObovgob/aF2ve9uJfPEawCx8381g/tUJZQ==
+    dependencies:
+      fbjs "^1.0.0"
+  
   react-native-safe-area-context@3.1.9, react-native-safe-area-context@^3.1.9:
     version "3.1.9"
     resolved "https://registry.yarnpkg.com/react-native-safe-area-context/-/react-native-safe-area-context-3.1.9.tgz#48864ea976b0fa57142a2cc523e1fd3314e7247e"
@@ -8127,6 +8162,11 @@ Lockfile:
     version "0.3.1"
     resolved "https://registry.yarnpkg.com/react-native-size-matters/-/react-native-size-matters-0.3.1.tgz#24d0cfc335a2c730f6d58bd7b43ea5a41be4b49f"
     integrity sha512-mKOfBLIBFBcs9br1rlZDvxD5+mAl8Gfr5CounwJtxI6Z82rGrMO+Kgl9EIg3RMVf3G855a85YVqHJL2f5EDRlw==
+  
+  react-native-tab-view@^2.15.2:
+    version "2.15.2"
+    resolved "https://registry.yarnpkg.com/react-native-tab-view/-/react-native-tab-view-2.15.2.tgz#4bc7832d33a119306614efee667509672a7ee64e"
+    integrity sha512-2hxLkBnZtEKFDyfvNO5EUywhy3f/EiLOBO8SWqKj4BMBTO0QwnybaPE5MVF00Fhz+VA4+h/iI40Dkrrtq70dGg==
   
   react-native-web@~0.13.12:
     version "0.13.18"

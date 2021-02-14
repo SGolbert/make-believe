@@ -1,0 +1,12 @@
+projects:
+  makebelieve:
+    schemaPath: amplify/graphql/schema.json
+    includes:
+      - amplify/graphql/**/*.ts
+    excludes:
+      - ./amplify/**
+    extensions:
+      amplify:
+        codeGenTarget: typescript
+        generatedFileName: src/API.ts
+        docsFilePath: amplify/graphql
